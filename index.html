@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShareSifter — Stock Screener for iOS</title>
+  <meta name="description" content="ShareSifter is a powerful stock screener for iOS. Filter, search, and research stocks and ETFs with built-in strategies and on-device AI analysis."/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand-top:    #6d28d9;
+      --brand-bottom: #2563eb;
+      --bg:           #0d0d12;
+      --card-bg:      #16161f;
+      --border:       rgba(255,255,255,0.07);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: #e2e2e8;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    a { color: #a78bfa; text-decoration: none; }
+    a:hover { color: #c4b5fd; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      background: rgba(13,13,18,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links a {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      margin-left: 28px;
+    }
+    .nav-links a:hover { color: #a78bfa; }
+
+    /* ── HERO ── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 96px 24px 80px;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(109,40,217,0.18) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border);
+    }
+    .app-icon {
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #6d28d9, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      box-shadow: 0 20px 60px rgba(109,40,217,0.4);
+    }
+    .app-icon svg {
+      width: 52px;
+      height: 52px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.55);
+      max-width: 520px;
+      margin-bottom: 36px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+    .hero-badge strong { color: #a78bfa; }
+
+    /* ── SECTION WRAPPER ── */
+    .section { padding: 80px 24px; max-width: 1000px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #a78bfa;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+    .section-sub {
+      color: rgba(255,255,255,0.45);
+      max-width: 540px;
+      font-size: 15px;
+      margin-bottom: 48px;
+    }
+
+    /* ── FEATURE GRID ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(167,139,250,0.3);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      font-size: 20px;
+    }
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+    }
+    .badge-ai {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(109,40,217,0.3), rgba(37,99,235,0.3));
+      border: 1px solid rgba(167,139,250,0.3);
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #a78bfa;
+      padding: 2px 7px;
+      letter-spacing: 0.05em;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-wrapper {
+      background: linear-gradient(135deg, rgba(109,40,217,0.06) 0%, rgba(37,99,235,0.06) 100%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      counter-reset: step;
+    }
+    .step { position: relative; padding-left: 0; }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand-top), var(--brand-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+    .step h3 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .step p  { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+
+    /* ── DIVIDER ── */
+    hr { border: none; border-top: 1px solid var(--border); }
+
+    /* ── DISCLAIMER ── */
+    .disclaimer {
+      background: rgba(239,68,68,0.05);
+      border: 1px solid rgba(239,68,68,0.15);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-top: 40px;
+    }
+    .disclaimer h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(239,68,68,0.8);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .disclaimer p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.65;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0a0a0f;
+      border-top: 1px solid var(--border);
+      padding: 40px 32px;
+    }
+    .footer-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 24px;
+    }
+    .footer-links a {
+      color: rgba(255,255,255,0.4);
+      font-size: 14px;
+    }
+    .footer-links a:hover { color: #a78bfa; }
+    .footer-copy {
+      color: rgba(255,255,255,0.18);
+      font-size: 12px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      nav { padding: 14px 18px; }
+      .nav-links { display: none; }
+      .hero { padding: 64px 18px 56px; }
+      .section { padding: 56px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">ShareSifter</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How It Works</a>
+      <a href="mailto:chuckchuckapps@gmail.com">Support</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="app-icon">
+      <!-- Bar chart icon representing a stock screener -->
+      <svg viewBox="0 0 48 48">
+        <rect x="6"  y="28" width="8" height="14" rx="2"/>
+        <rect x="20" y="18" width="8" height="24" rx="2"/>
+        <rect x="34" y="10" width="8" height="32" rx="2"/>
+        <polyline points="6,24 24,12 42,6" stroke-dasharray="0" opacity="0.6"/>
+      </svg>
+    </div>
+    <h1>Stock screening,<br/><span>simplified.</span></h1>
+    <p>ShareSifter helps you find stocks that match your strategy — fast. Filter by market cap, valuation, and momentum, then dive deep with on-device AI research.</p>
+    <div class="hero-badge">
+      <strong>iOS App</strong> &nbsp;·&nbsp; Requires iPhone with iOS 17 or later
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <div id="features">
+    <div class="section">
+      <div class="section-label">What's inside</div>
+      <h2 class="section-title">Everything you need to screen smarter</h2>
+      <p class="section-sub">Six tools in one app, built for investors who want to move from idea to research without switching between a dozen websites.</p>
+
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(109,40,217,0.15);">📊</div>
+          <h3>Stock Screener</h3>
+          <p>Filter the market by market capitalization, P/E ratio, and daily price change. Your watchlist, your rules — updated on demand.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(37,99,235,0.15);">🔍</div>
+          <h3>Smart Search</h3>
+          <p>Find any publicly traded stock or ETF instantly by ticker symbol or company name. Tap to view a full detail card, or add directly to your portfolio.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(16,185,129,0.15);">💼</div>
+          <h3>Portfolio Tracker</h3>
+          <p>Build a personal watchlist of stocks you're following. See live prices, daily change, and market cap at a glance — all in one place.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(245,158,11,0.15);">⚡️</div>
+          <h3>Strategies</h3>
+          <p>Five built-in screening strategies — Value Hunt, Momentum, Large Cap, High Growth, and Market Leader — plus custom presets you create and save yourself.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: linear-gradient(135deg, rgba(109,40,217,0.15), rgba(37,99,235,0.15));">✦</div>
+          <h3>AI Research <span class="badge-ai">APPLE INTELLIGENCE</span></h3>
+          <p>Get an on-device AI summary for any stock — valuation context, growth narrative, and risk factors — powered by Apple Intelligence. Nothing leaves your device.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(239,68,68,0.12);">⚙️</div>
+          <h3>Settings & Control</h3>
+          <p>Reset filters, clear your portfolio, and manage app preferences all in one place. Your data lives locally — no account required, ever.</p>
+        </div>
+
+      </div>
+
+      <div class="disclaimer">
+        <h4>Important Disclosure</h4>
+        <p>ShareSifter is an informational research tool only. It does not execute trades or provide personalized investment advice. Market data is sourced from Alpha Vantage and may be delayed. AI-generated summaries are not reviewed by financial professionals. See our <a href="terms.html">Terms of Use</a> for full details.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr/>
+
+  <!-- HOW IT WORKS -->
+  <div class="how-wrapper" id="how">
+    <div class="section">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">From filter to insight in seconds</h2>
+      <p class="section-sub">ShareSifter is built around a simple workflow — screen, explore, research.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Set your filters</h3>
+          <p>Choose a built-in strategy or dial in your own criteria: market cap tier, maximum P/E ratio, and minimum daily price change.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>See the results</h3>
+          <p>The screener fetches live data and surfaces only the stocks that meet your criteria. Sort by price, change, market cap, or symbol.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Tap for details</h3>
+          <p>Open any stock for a full detail view: price chart, key financials, and sector. Add to your portfolio with one tap.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <h3>Research with AI</h3>
+          <p>On supported devices, generate an on-device AI summary that contextualizes the stock's valuation, growth story, and risks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">ShareSifter</div>
+      <nav class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Use</a>
+        <a href="mailto:chuckchuckapps@gmail.com">Support</a>
+      </nav>
+      <p class="footer-copy">
+        &copy; 2026 ShareSifter. All rights reserved.<br/>
+        ShareSifter is not a registered investment advisor. Market data provided by Alpha Vantage.
+        Nothing on this site constitutes financial advice.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
